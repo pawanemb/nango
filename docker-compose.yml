@@ -1,8 +1,8 @@
 services:
   nango:
     image: nangohq/nango:05d0a03783bd29f84fd8b80b85085fde23d453ec
+    platform: linux/amd64       # <--- Add this line
     ports:
-      - "3003:3003"
       - "3003:3003"
     environment:
       - NANGO_DB_URL=postgresql://postgres:AX9KO1c7IQ9K9Lct51G0odPMVW26e1Pi8qXPOxDCzHpQxg6Yd86v0aLx5O6cC4NF@lgko8oosokkgw4k4os48w8w8:5432/postgres
