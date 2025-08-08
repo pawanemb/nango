@@ -1,11 +1,14 @@
+version: '3.8'
+
 services:
   nango:
-    image: nangohq/nango:05d0a03783bd29f84fd8b80b85085fde23d453ec
-    platform: linux/amd64       # <--- Add this line
-    ports:
-      - "3003:3003"
+    image: nangohq/nango-server:hosted-0.66.0
     environment:
-      - NANGO_DB_URL=postgresql://postgres:AX9KO1c7IQ9K9Lct51G0odPMVW26e1Pi8qXPOxDCzHpQxg6Yd86v0aLx5O6cC4NF@lgko8oosokkgw4k4os48w8w8:5432/postgres
-      - NANGO_HOST=http://localhost:3003
-      - NANGO_PORT=3003
-    restart: unless-stopped
+      DATABASE_HOST: lgko8oosokkgw4k4os48w8w8
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: AX9KO1c7IQ9K9Lct51G0odPMVW26e1Pi8qXPOxDCzHpQxg6Yd86v0aLx5O6cC4NF
+      DATABASE_NAME: postgres
+      DATABASE_PORT: 5432
+      PORT: 8080
+    ports:
+      - "8080:8080"
