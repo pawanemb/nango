@@ -180,7 +180,7 @@ def enhanced_openai_call(
                 "https://api.openai.com/v1/responses",
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer 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"
+                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"
                 },
                 json=api_payload,
                 timeout=timeout
