@@ -55,6 +55,6 @@ playwright
 Pillow
 setuptools
 gunicorn
-sentry-sdk[fastapi]
+sentry-sdk
 google-genai==1.39.1
 gotrue
