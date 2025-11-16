@@ -1,19 +1,48 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.core.config import settings
+import logging
+from contextlib import contextmanager
 
+logger = logging.getLogger(__name__)
+
+# GLOBAL engine (reused across all workers)
 engine = create_engine(
     settings.DATABASE_URL,
-    pool_size=1,             # <= ONLY 1 connection per instance
-    max_overflow=0,          # <= do not create extra connections
-    pool_timeout=5,
-    pool_recycle=300,
     pool_pre_ping=True,
+    pool_size=20,            # GOOD for Cloud Run
+    max_overflow=10,         # Avoid Supabase overload
+    pool_recycle=1800,       
+    pool_timeout=20,         
+    pool_use_lifo=True,
     connect_args={
-        "options": "-c statement_timeout=120000 -c idle_in_transaction_session_timeout=300000"
+        "application_name": "rayo_backend",
+        "options": "-c statement_timeout=60000"
     },
-    execution_options={
-        "isolation_level": "AUTOCOMMIT"
-    },
+    execution_options={"isolation_level": "AUTOCOMMIT"},
+    pool_reset_on_return='commit',
 )
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+# GLOBAL session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Context manager
+@contextmanager
+def get_db_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# FastAPI dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    except Exception as e:
+        logger.error(f"Database session error: {e}")
+        db.rollback()
+        raise
+    finally:
+        db.close()
