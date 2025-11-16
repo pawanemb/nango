@@ -1,0 +1,60 @@
+fastapi
+uvicorn==0.24.0
+python-dotenv==1.0.0
+pydantic
+sqlalchemy==2.0.23
+python-jose[cryptography]==3.3.0
+supabase
+httpx
+boto3==1.34.0  # For DigitalOcean Spaces (S3-compatible)
+botocore==1.34.0  # For DigitalOcean Spaces
+psycopg2-binary==2.9.9
+alembic==1.13.1
+pydantic-settings==2.2.1
+sqlalchemy-utils==0.41.1  # For UUID and other custom types
+PyJWT==2.8.0  # For JWT token handling
+celery==5.3.6  # For background tasks
+redis==5.0.1  # For Celery broker/backend
+flower==2.0.1  # For monitoring Celery tasks
+beautifulsoup4==4.12.2  # For web scraping
+requests==2.31.0  # For making HTTP requests
+motor==3.3.2  # MongoDB async driver
+pymongo==4.6.1  # MongoDB sync driver
+OpenAI  # For OpenAI API integration
+aiohttp==3.9.1  # For async HTTP requests
+anthropic  # For Anthropic API integration
+pytz==2024.1  # For timezone support
+# PDF Generation and Processing
+reportlab==4.0.4
+PyMuPDF==1.23.26  # For PDF text extraction (fitz)
+PyPDF2==3.0.1  # Fallback PDF processing
+python-docx==1.1.0  # For DOCX file processing
+# Email
+fastapi-mail==1.4.1
+jinja2==3.1.2
+# Google Search Console Integration
+google-auth-oauthlib==1.2.1  # For OAuth2 flow (Latest: Jul 2024)
+google-auth-httplib2==0.2.0  # HTTP client for Google Auth
+google-api-python-client==2.160.0  # Google API client library (Latest: Jan 2025)
+cachetools==5.3.2  # For caching tokens
+plotly==5.18.0  # For creating interactive visualizations
+kaleido==0.2.1  # Required for plotly static image generation
+firecrawl-py
+html2text
+phidata
+googlesearch-python
+pycountry
+razorpay
+tiktoken
+selenium
+webdriver-manager
+python-multipart
+requests-toolbelt
+crawl4ai
+playwright
+Pillow
+setuptools
+gunicorn
+sentry-sdk[fastapi]
+google-genai==1.39.1
+gotrue

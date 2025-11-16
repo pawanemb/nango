@@ -1,0 +1,42 @@
+[Unit]
+Description=Rayo Backend Service
+After=network.target redis.service
+Requires=redis.service
+
+[Service]
+Type=exec
+User=pawan_patra
+Group=pawan_patra
+WorkingDirectory=/home/pawan_patra/Rayo-backend-pawan
+
+# Environment variables
+Environment="PATH=/home/pawan_patra/Rayo-backend-pawan/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PYTHONPATH=/home/pawan_patra/Rayo-backend-pawan"
+Environment="PYTHONUNBUFFERED=1"
+
+# Load .env file if it exists
+EnvironmentFile=-/home/pawan_patra/Rayo-backend-pawan/.env
+
+# Use the start script instead of direct gunicorn command
+ExecStart=/home/pawan_patra/Rayo-backend-pawan/start_rayo.sh
+
+# Restart settings
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+StartLimitBurst=0
+
+# Kill settings
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Resource limits
+LimitNOFILE=65535
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GSC Report</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto;">
+        <!-- Header -->
+        <tr>
+            <td style="padding: 20px;">
+                <h1 style="color: #2c3e50; margin: 0; font-size: 24px;">Google Search Console Report</h1>
+                <p style="margin: 10px 0 0 0; color: #666;">{{ site_url }}</p>
+                <p style="margin: 5px 0 0 0; color: #666;">{{ time_range.start_date }} to {{ time_range.end_date }}</p>
+            </td>
+        </tr>
+
+        <!-- Metrics Overview -->
+        <tr>
+            <td style="padding: 0 20px;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <!-- Impressions -->
+                        <td width="33%" style="padding-right: 12px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">IMPRESSIONS</div>
+                                        <div style="font-size: 32px; color: #4a90e2; margin-bottom: 8px;">{{ search_analytics.total_impressions }}</div>
+                                        <div style="font-size: 14px; color: {% if search_analytics.impressions_change > 0 %}#00c853{% else %}#ff5252{% endif %};">
+                                            {{ "%.1f"|format(search_analytics.impressions_change) }}% vs last period
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <!-- Clicks -->
+                        <td width="33%" style="padding: 0 6px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">CLICKS</div>
+                                        <div style="font-size: 32px; color: #4a90e2; margin-bottom: 8px;">{{ search_analytics.total_clicks }}</div>
+                                        <div style="font-size: 14px; color: {% if search_analytics.clicks_change > 0 %}#00c853{% else %}#ff5252{% endif %};">
+                                            {{ "%.1f"|format(search_analytics.clicks_change) }}% vs last period
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <!-- CTR -->
+                        <td width="33%" style="padding-left: 12px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 8px;">AVERAGE CTR</div>
+                                        <div style="font-size: 32px; color: #4a90e2; margin-bottom: 8px;">{{ search_analytics.average_ctr }}%</div>
+                                        <div style="font-size: 14px; color: {% if search_analytics.ctr_change > 0 %}#00c853{% else %}#ff5252{% endif %};">
+                                            {{ "%.1f"|format(search_analytics.ctr_change) }}% vs last period
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Impressions Graph -->
+        <tr>
+            <td style="padding: 20px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 20px;">
+                            <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 16px;">IMPRESSIONS OVER TIME</div>
+                            {% if timeseries.impressions and timeseries.impressions|length > 0 %}
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td style="padding-right: 10px; vertical-align: top;">
+                                        <!-- Y-axis labels -->
+                                        <table cellpadding="0" cellspacing="0">
+                                            {% set max_impressions = timeseries.impressions|max %}
+                                            {% for i in range(5) %}
+                                            <tr>
+                                                <td style="padding-bottom: 32px; text-align: right; font-size: 12px; color: #666;">
+                                                    {{ (max_impressions * ((4-i)/4))|int }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </table>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <!-- Graph area -->
+                                        <div style="position: relative; height: 200px; border-left: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                            <!-- Grid lines -->
+                                            {% for i in range(5) %}
+                                            <div style="position: absolute; left: 0; right: 0; top: {{ i * 25 }}%; height: 1px; background: #eee;"></div>
+                                            {% endfor %}
+                                            
+                                            <!-- Data bars -->
+                                            <table width="100%" cellpadding="0" cellspacing="0" style="height: 100%; position: relative;">
+                                                <tr>
+                                                    {% for value in timeseries.impressions %}
+                                                    <td style="vertical-align: bottom; padding: 0 2px;">
+                                                        {% set height = (value / max_impressions * 100)|float if max_impressions > 0 else 0 %}
+                                                        <div style="width: 8px; height: {{ '%.1f'|format(height) }}%; background-color: #4a90e2; margin: 0 auto;"></div>
+                                                    </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <!-- X-axis labels -->
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                {% for date in timeseries.dates %}
+                                                {% if loop.index0 % 4 == 0 %}
+                                                <td style="text-align: center; padding-top: 8px;">
+                                                    <div style="font-size: 12px; color: #666;">{{ date }}</div>
+                                                </td>
+                                                <td colspan="3"></td>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            {% else %}
+                            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                                <p style="margin: 0;">No impression data available for this time period.</p>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- CTR Trend Graph -->
+        <tr>
+            <td style="padding: 20px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 20px;">
+                            <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 16px;">CTR TREND</div>
+                            {% if timeseries.ctr and timeseries.ctr|length > 0 %}
+                            <table width="100%" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+                                <tr>
+                                    <td style="width: 50px; vertical-align: top;">
+                                        <!-- Y-axis labels -->
+                                        <table cellpadding="0" cellspacing="0" style="width: 100%;">
+                                            {% set max_ctr = timeseries.ctr|max %}
+                                            {% set step = (max_ctr / 5)|round(1) %}
+                                            {% for i in range(6) %}
+                                            <tr>
+                                                <td style="padding-bottom: 30px; text-align: right; font-size: 12px; color: #666; white-space: nowrap;">
+                                                    {{ "%.1f"|format(step * (5-i)) }}%
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </table>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <!-- Graph area -->
+                                        <div style="position: relative; height: 200px; border-left: 1px solid #eee;">
+                                            <!-- Grid lines -->
+                                            {% for i in range(6) %}
+                                            <div style="position: absolute; left: 0; right: 0; top: {{ i * 20 }}%; height: 1px; background: #eee;"></div>
+                                            {% endfor %}
+                                            
+                                            <!-- Data points and lines -->
+                                            <table cellpadding="0" cellspacing="0" style="width: 100%; height: 100%; table-layout: fixed;">
+                                                <tr style="height: 100%;">
+                                                    {% for ctr in timeseries.ctr %}
+                                                    <td style="position: relative; vertical-align: bottom; height: 100%;">
+                                                        {% set height = (ctr / (step * 5) * 100)|float %}
+                                                        
+                                                        <!-- Vertical position marker -->
+                                                        <div style="position: absolute; bottom: {{ height }}%; left: 50%; transform: translateX(-50%);">
+                                                            <!-- Point -->
+                                                            <div style="width: 8px; height: 8px; background-color: #4a90e2; border-radius: 50%; margin-bottom: -4px;"></div>
+                                                            
+                                                            {% if not loop.last %}
+                                                                <!-- Line to next point -->
+                                                                {% set next_height = (timeseries.ctr[loop.index0 + 1] / (step * 5) * 100)|float %}
+                                                                <div style="position: absolute; bottom: 4px; left: 4px; width: calc(100% + 4px); height: 2px; background-color: #4a90e2;"></div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <!-- X-axis -->
+                                        <div style="border-top: 1px solid #eee;">
+                                            <table cellpadding="0" cellspacing="0" style="width: 100%; table-layout: fixed;">
+                                                <tr>
+                                                    {% for date in timeseries.dates %}
+                                                    {% if loop.index0 % 3 == 0 %}
+                                                    <td colspan="3" style="text-align: left; padding-top: 8px;">
+                                                        <div style="font-size: 12px; color: #666;">{{ date }}</div>
+                                                    </td>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            {% else %}
+                            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                                <p style="margin: 0;">No CTR data available for this time period.</p>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Pages Indexing Status -->
+        <tr>
+            <td style="padding: 20px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 20px;">
+                            <div style="font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 16px;">PAGES INDEXING STATUS</div>
+                            
+                            <!-- Stats -->
+                            <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <div style="font-size: 32px; color: #2c3e50; margin-bottom: 8px;">{{ indexing_stats.total }}</div>
+                                        <div style="font-size: 14px; color: #666; margin-bottom: 20px;">Total Pages</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                            <tr>
+                                                <td style="padding: 8px;">
+                                                    <table cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td style="width: 12px; height: 12px; background-color: #4caf50;"></td>
+                                                            <td style="padding-left: 8px; font-size: 14px; color: #666;">
+                                                                {{ indexing_stats.indexed }} Indexed
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px;">
+                                                    <table cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td style="width: 12px; height: 12px; background-color: #ff9800;"></td>
+                                                            <td style="padding-left: 8px; font-size: 14px; color: #666;">
+                                                                {{ indexing_stats.not_indexed }} Not Indexed
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td style="padding: 20px;">
+                <p style="color: #666; font-size: 12px; margin: 0;">This report was generated automatically by Rayo.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
