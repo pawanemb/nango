@@ -50,7 +50,6 @@ selenium
 webdriver-manager
 python-multipart
 requests-toolbelt
-crawl4ai
 playwright
 Pillow
 setuptools
