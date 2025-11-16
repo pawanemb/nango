@@ -1,25 +1,57 @@
-# Use an official Python runtime as a parent image
-FROM python:3.10-slim-bookworm
+# ---------------------------------------------------------
+# 1) Builder Stage (build wheels, install deps safely)
+# ---------------------------------------------------------
+FROM python:3.10-slim AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies required for some Python packages
+# Install system deps ONLY required for building wheels
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Build wheels instead of installing directly (faster runtime)
+RUN pip install --upgrade pip && \
+    pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
-# Copy the rest of the application's code into the container
+# ---------------------------------------------------------
+# 2) Runtime Stage (clean, small, fast)
+# ---------------------------------------------------------
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install only minimal system libs
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy prebuilt wheels (super fast install)
+COPY --from=builder /wheels /wheels
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir /wheels/*
+
+# Copy application code
 COPY . .
 
-# Expose port 8000 for the application
+# Expose FastAPI port
 EXPOSE 8000
 
-# Command to run the application using Gunicorn
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:8000", "main:app"]
+# ---------------------------------------------------------
+# Gunicorn + Uvicorn Workers (optimized)
+# ---------------------------------------------------------
+ENV WORKERS=4
+ENV THREADS=1
+ENV TIMEOUT=60
+
+CMD ["gunicorn", "main:app", \
+     "-k", "uvicorn.workers.UvicornWorker", \
+     "-w", "4", \
+     "--threads", "1", \
+     "--keep-alive", "120", \
+     "-b", "0.0.0.0:8000"]
